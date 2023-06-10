@@ -18,10 +18,6 @@ NE = "northeast"
 SW = "southwest"
 SE = "southeast"
 
-##SCORE
-blue_score = 0
-red_score = 0
-
 class Game:
 
 	def __init__(self):
@@ -32,6 +28,9 @@ class Game:
 		self.selected_piece = None # a board location. 
 		self.hop = False
 		self.selected_legal_moves = []
+
+		self.red_score = 0
+		self.blue_score = 0
 
 	def setup(self):
 		self.graphics.setup_window()
@@ -79,7 +78,7 @@ class Game:
 	def update(self):
 		self.graphics.update_display(self.board, self.selected_legal_moves, self.selected_piece)
 
-	def terminate_game(self):
+	def terminate_game(self):	
 		pygame.quit()
 		sys.exit
 
@@ -102,15 +101,12 @@ class Game:
 
 		if self.check_for_endgame():
 			if self.turn == BLUE:
+				self.red_score += 1
 				self.graphics.draw_message("RED WINS!")
-				red_score += 1
-				self.graphics.draw_message("Red Score: " + red_score)
-				self.graphics.draw_message("Blue Score: " + blue_score)
 			else:
+				self.blue_score += 1
 				self.graphics.draw_message("BLUE WINS!")
-				blue_score += 1
-				self.graphics.draw_message("Red Score: " + red_score)
-				self.graphics.draw_message("Blue Score: " + blue_score)
+
 
 	def check_for_endgame(self):
 		for x in range(8):
