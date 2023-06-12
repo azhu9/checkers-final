@@ -24,6 +24,7 @@ class Game:
 		self.graphics = Graphics()
 		self.board = Board()
 		
+		self.gameState = "start"
 		self.turn = BLUE
 		self.selected_piece = None # a board location. 
 		self.hop = False
@@ -44,36 +45,46 @@ class Game:
 
 			if event.type == QUIT:
 				self.terminate_game()
-
-			if event.type == MOUSEBUTTONDOWN:
-				if self.hop == False:
-					if self.board.location(self.mouse_pos).occupant != None and self.board.location(self.mouse_pos).occupant.color == self.turn:
-						self.selected_piece = self.mouse_pos
-
-					elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece):
-
-						self.board.move_piece(self.selected_piece, self.mouse_pos)
-					
-						if self.mouse_pos not in self.board.adjacent(self.selected_piece):
-							self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
-						
-							self.hop = True
+			
+				if event.type == MOUSEBUTTONDOWN:
+					if self.hop == False:
+						if self.board.location(self.mouse_pos).occupant != None and self.board.location(self.mouse_pos).occupant.color == self.turn:
 							self.selected_piece = self.mouse_pos
 
+						elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece):
+
+							self.board.move_piece(self.selected_piece, self.mouse_pos)
+						
+							if self.mouse_pos not in self.board.adjacent(self.selected_piece):
+								self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
+							
+								self.hop = True
+								self.selected_piece = self.mouse_pos
+
+							else:
+								self.end_turn()
+
+					if self.hop == True:					
+						if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece, self.hop):
+							self.board.move_piece(self.selected_piece, self.mouse_pos)
+							self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
+
+						if self.board.legal_moves(self.mouse_pos, self.hop) == []:
+								self.end_turn()
+
 						else:
-							self.end_turn()
+							self.selected_piece = self.mouse_pos
 
-				if self.hop == True:					
-					if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece, self.hop):
-						self.board.move_piece(self.selected_piece, self.mouse_pos)
-						self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
+	def start_screen_loop(self):
 
-					if self.board.legal_moves(self.mouse_pos, self.hop) == []:
-							self.end_turn()
-
-					else:
-						self.selected_piece = self.mouse_pos
-
+		for event in pygame.event.get():
+          
+			if event.type == QUIT:
+				self.terminate_game()
+              
+        	#checks if a mouse is clicked
+				if event.type == pygame.MOUSEBUTTONDOWN:
+					print("CLICKED")
 
 	def update(self):
 		self.graphics.update_display(self.board, self.selected_legal_moves, self.selected_piece)
@@ -86,8 +97,10 @@ class Game:
 		self.setup()
 
 		while True: # main game loop
-			self.event_loop()
-			self.update()
+			self.start_screen_loop()
+			# self.event_loop()
+			self.graphics.draw_start_menu()
+			# self.update()
 
 	def end_turn(self):
 		if self.turn == BLUE:
@@ -136,6 +149,17 @@ class Graphics:
 	def setup_window(self):
 		pygame.init()
 		pygame.display.set_caption(self.caption)
+
+	def draw_start_menu(self):
+		self.screen.fill(BLUE)
+		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
+		self.title = self.font_obj.render('CHECKERS', True, WHITE)
+		self.start_button = self.font_obj.render('Start', True, WHITE)
+		self.screen.blit(self.title, (300 - self.title.get_width()/2, 300 - self.title.get_height()/2))
+		self.screen.blit(self.start_button, (300 - self.start_button.get_width()/2, 300 + self.start_button.get_height()/2))
+		pygame.display.update()
+
+
 
 	def update_display(self, board, legal_moves, selected_piece):
 		self.screen.blit(self.background, (0,0))
@@ -189,12 +213,9 @@ class Board:
 		self.matrix = self.new_board()
 
 	def new_board(self):
-		# initialize squares and place them in matrix
 
 		matrix = [[None] * 8 for i in range(8)]
 
-		# The following code block has been adapted from
-		# http://itgirl.dreamhosters.com/itgirlgames/games/Program%20Leaders/ClareR/Checkers/checkers.py
 		for x in range(8):
 			for y in range(8):
 				if (x % 2 != 0) and (y % 2 == 0):
@@ -205,8 +226,6 @@ class Board:
 					matrix[y][x] = Square(WHITE)
 				elif (x % 2 == 0) and (y % 2 == 0): 
 					matrix[y][x] = Square(BLACK)
-
-		# initialize the pieces and put them in the appropriate squares
 
 		for x in range(8):
 			for y in range(3):
@@ -227,7 +246,6 @@ class Board:
 					board_string[x][y] = "WHITE"
 				else:
 					board_string[x][y] = "BLACK"
-
 
 		return board_string
 	
