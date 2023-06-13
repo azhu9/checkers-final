@@ -46,34 +46,34 @@ class Game:
 			if event.type == QUIT:
 				self.terminate_game()
 			
-				if event.type == MOUSEBUTTONDOWN:
-					if self.hop == False:
-						if self.board.location(self.mouse_pos).occupant != None and self.board.location(self.mouse_pos).occupant.color == self.turn:
-							self.selected_piece = self.mouse_pos
+			if event.type == MOUSEBUTTONDOWN:
+				if self.hop == False:
+					if self.board.location(self.mouse_pos).occupant != None and self.board.location(self.mouse_pos).occupant.color == self.turn:
+						self.selected_piece = self.mouse_pos
 
-						elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece):
+					elif self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece):
 
-							self.board.move_piece(self.selected_piece, self.mouse_pos)
-						
-							if self.mouse_pos not in self.board.adjacent(self.selected_piece):
-								self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
-							
-								self.hop = True
-								self.selected_piece = self.mouse_pos
-
-							else:
-								self.end_turn()
-
-					if self.hop == True:					
-						if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece, self.hop):
-							self.board.move_piece(self.selected_piece, self.mouse_pos)
+						self.board.move_piece(self.selected_piece, self.mouse_pos)
+					
+						if self.mouse_pos not in self.board.adjacent(self.selected_piece):
 							self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
-
-						if self.board.legal_moves(self.mouse_pos, self.hop) == []:
-								self.end_turn()
+						
+							self.hop = True
+							self.selected_piece = self.mouse_pos
 
 						else:
-							self.selected_piece = self.mouse_pos
+							self.end_turn()
+
+				if self.hop == True:					
+					if self.selected_piece != None and self.mouse_pos in self.board.legal_moves(self.selected_piece, self.hop):
+						self.board.move_piece(self.selected_piece, self.mouse_pos)
+						self.board.remove_piece(((self.selected_piece[0] + self.mouse_pos[0]) >> 1, (self.selected_piece[1] + self.mouse_pos[1]) >> 1))
+
+					if self.board.legal_moves(self.mouse_pos, self.hop) == []:
+							self.end_turn()
+
+					else:
+						self.selected_piece = self.mouse_pos
 
 	def start_screen_loop(self):
 
@@ -83,8 +83,9 @@ class Game:
 				self.terminate_game()
               
         	#checks if a mouse is clicked
-				if event.type == pygame.MOUSEBUTTONDOWN:
-					print("CLICKED")
+			if event.type == pygame.KEYDOWN:
+				print("CLICKED")
+				self.gameState = "play"
 
 	def update(self):
 		self.graphics.update_display(self.board, self.selected_legal_moves, self.selected_piece)
@@ -97,10 +98,12 @@ class Game:
 		self.setup()
 
 		while True: # main game loop
-			self.start_screen_loop()
-			# self.event_loop()
-			self.graphics.draw_start_menu()
-			# self.update()
+			if self.gameState == "start":
+				self.start_screen_loop()
+				self.graphics.draw_start_menu()
+			elif self.gameState == "play":
+				self.event_loop()
+				self.update()
 
 	def end_turn(self):
 		if self.turn == BLUE:
@@ -139,7 +142,7 @@ class Graphics:
 
 		self.window_size = 600
 		self.screen = pygame.display.set_mode((self.window_size, self.window_size))
-		self.background = pygame.image.load('resources/board.png')
+		self.background = pygame.image.load('resources/ColoredWienerBoard.jpg')
 
 		self.square_size = self.window_size >> 3
 		self.piece_size = self.square_size >> 1
@@ -154,7 +157,7 @@ class Graphics:
 		self.screen.fill(BLUE)
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
 		self.title = self.font_obj.render('CHECKERS', True, WHITE)
-		self.start_button = self.font_obj.render('Start', True, WHITE)
+		self.start_button = self.font_obj.render('CLICK ANY KEY TO START', True, WHITE)
 		self.screen.blit(self.title, (300 - self.title.get_width()/2, 300 - self.title.get_height()/2))
 		self.screen.blit(self.start_button, (300 - self.start_button.get_width()/2, 300 + self.start_button.get_height()/2))
 		pygame.display.update()
