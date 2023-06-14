@@ -20,7 +20,7 @@ SW = "southwest"
 SE = "southeast"
 
 class Game:
-	#Initalizes variables for Game Class
+	#Initializes variables for Game Class
 	def __init__(self):
 		self.graphics = Graphics()
 		self.board = Board()
@@ -152,13 +152,13 @@ class Game:
 		return True
 
 class Graphics:
-	#Initalize variables for Graphics class
+	#Initialize variables for Graphics class
 	def __init__(self):
 		self.caption = "Checkers"
   
 		##BOARDS##
 		self.boards = ["board.png","WienerBoard.jpg","ColoredWienerBoard.jpg"]
-		self.boardsNAMES = ["Normal","Dr. Wiener","Colored Dr. Wiener"]
+		self.boardsNAMES = ["Normal","Dr. Wiener","Red/Blue Dr. Wiener"]
 		self.boardNumber = 0
 
 		self.fps = 60
@@ -248,7 +248,7 @@ class Graphics:
 		self.text_rect_obj.center = (self.window_size >> 1, self.window_size >> 1)
 
 class Board:
-	#Initalizes matrix for board
+	#Initializes matrix for board
 	def __init__(self):
 		self.matrix = self.new_board()
 
@@ -290,7 +290,7 @@ class Board:
 
 		return board_string
 	
-		#Checks directionally for avaliable moves
+		#Checks directionally for available moves
 	def rel(self, dir, pixel):
 		x = pixel[0]
 		y = pixel[1]
@@ -405,7 +405,7 @@ class Board:
 				self.location((x,y)).occupant.king = True 
 
 class Piece:
-	#Initalizes attributes for pieces
+	#Initializes attributes for pieces
 	def __init__(self, color, king = False):
 		self.color = color
 		self.king = king
