@@ -7,6 +7,7 @@ pygame.font.init()
 #             R    G    B 
 WHITE    = (255, 255, 255)
 BLUE     = (  0,   0, 255)
+SKYBLUE  = (123, 211, 247)
 RED      = (255,   0,   0)
 BLACK    = (  0,   0,   0)
 GOLD     = (255, 215,   0)
@@ -81,12 +82,22 @@ class Game:
 	def start_screen_loop(self):
 
 		for event in pygame.event.get():
-          
+					
 			if event.type == QUIT:
 				self.terminate_game()
-              
-        	#checks if a mouse is clicked
+			
+			# Changes board type
 			if event.type == pygame.KEYDOWN:
+				if event.key == pygame.K_SPACE:
+					self.graphics.boardNumber = self.graphics.boardNumber + 1
+					if self.graphics.boardNumber == 3:
+						self.graphics.boardNumber = 0
+					self.graphics.background = pygame.image.load(f'resources/{self.graphics.boards[self.graphics.boardNumber]}')
+					print(self.graphics.boardNumber)
+					print(self.graphics.boards[self.graphics.boardNumber])
+			
+			#checks if a mouse is clicked
+			if event.type == MOUSEBUTTONDOWN:
 				print("CLICKED")
 				self.gameState = "play"
 
@@ -144,13 +155,18 @@ class Graphics:
 	#Initalize variables for Graphics class
 	def __init__(self):
 		self.caption = "Checkers"
+  
+		##BOARDS##
+		self.boards = ["board.png","WienerBoard.jpg","ColoredWienerBoard.jpg"]
+		self.boardsNAMES = ["Normal","Dr. Wiener","Colored Dr. Wiener"]
+		self.boardNumber = 0
 
 		self.fps = 60
 		self.clock = pygame.time.Clock()
 
 		self.window_size = 600
 		self.screen = pygame.display.set_mode((self.window_size, self.window_size))
-		self.background = pygame.image.load('resources/ColoredWienerBoard.jpg')
+		self.background = pygame.image.load(f'resources/{self.boards[self.boardNumber]}')
 
 		self.square_size = self.window_size >> 3
 		self.piece_size = self.square_size >> 1
@@ -164,12 +180,18 @@ class Graphics:
 
 	#Draw start menu function
 	def draw_start_menu(self):
-		self.screen.fill(BLUE)
+		self.screen.fill(SKYBLUE)
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
 		self.title = self.font_obj.render('CHECKERS', True, WHITE)
-		self.start_button = self.font_obj.render('CLICK ANY KEY TO START', True, WHITE)
-		self.screen.blit(self.title, (300 - self.title.get_width()/2, 300 - self.title.get_height()/2))
-		self.screen.blit(self.start_button, (300 - self.start_button.get_width()/2, 300 + self.start_button.get_height()/2))
+		self.font_obj = pygame.font.Font('freesansbold.ttf', 25)
+		self.start_button = self.font_obj.render('CLICK ANYWHERE TO START', True, WHITE)
+		self.start_button2 = self.font_obj.render('PRESS SPACE TO CHANGE BOARD', True, WHITE)
+		self.font_obj = pygame.font.Font('freesansbold.ttf', 20)
+		self.boardName = self.font_obj.render(f'{self.boardsNAMES[self.boardNumber]}', True, WHITE)
+		self.screen.blit(self.title, (300 - self.title.get_width()/2, 250 - self.title.get_height()/2))
+		self.screen.blit(self.start_button, (300 - self.start_button.get_width()/2, 305 + self.start_button.get_height()/2))
+		self.screen.blit(self.start_button2, (300 - self.start_button2.get_width()/2, 340 + self.start_button2.get_height()/2))
+		self.screen.blit(self.boardName, (300 - self.boardName.get_width()/2, 400 + self.boardName.get_height()/2))
 		pygame.display.update()
 
 	#Update display during game loop
