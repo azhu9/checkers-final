@@ -19,7 +19,7 @@ SW = "southwest"
 SE = "southeast"
 
 class Game:
-
+	#Initalizes variables for Game Class
 	def __init__(self):
 		self.graphics = Graphics()
 		self.board = Board()
@@ -33,9 +33,11 @@ class Game:
 		self.red_score = 0
 		self.blue_score = 0
 
+	#Call Setup window
 	def setup(self):
 		self.graphics.setup_window()
 
+	#Game Event Loop
 	def event_loop(self):
 		self.mouse_pos = self.graphics.board_coords(pygame.mouse.get_pos()) # what square is the mouse in?
 		if self.selected_piece != None:
@@ -75,6 +77,7 @@ class Game:
 					else:
 						self.selected_piece = self.mouse_pos
 
+	#Start Screen Event Loop
 	def start_screen_loop(self):
 
 		for event in pygame.event.get():
@@ -87,13 +90,16 @@ class Game:
 				print("CLICKED")
 				self.gameState = "play"
 
+	#Update Display function
 	def update(self):
 		self.graphics.update_display(self.board, self.selected_legal_moves, self.selected_piece)
 
+	#Quit game 
 	def terminate_game(self):	
 		pygame.quit()
 		sys.exit
 
+	#Main function with game loop
 	def main(self):
 		self.setup()
 
@@ -105,6 +111,7 @@ class Game:
 				self.event_loop()
 				self.update()
 
+	#Turn end function
 	def end_turn(self):
 		if self.turn == BLUE:
 			self.turn = RED
@@ -123,7 +130,7 @@ class Game:
 				self.blue_score += 1
 				self.graphics.draw_message("BLUE WINS!")
 
-
+	#Endgame function
 	def check_for_endgame(self):
 		for x in range(8):
 			for y in range(8):
@@ -134,6 +141,7 @@ class Game:
 		return True
 
 class Graphics:
+	#Initalize variables for Graphics class
 	def __init__(self):
 		self.caption = "Checkers"
 
@@ -149,10 +157,12 @@ class Graphics:
 
 		self.message = False
 
+	#Setup window for graphics
 	def setup_window(self):
 		pygame.init()
 		pygame.display.set_caption(self.caption)
 
+	#Draw start menu function
 	def draw_start_menu(self):
 		self.screen.fill(BLUE)
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
@@ -162,8 +172,7 @@ class Graphics:
 		self.screen.blit(self.start_button, (300 - self.start_button.get_width()/2, 300 + self.start_button.get_height()/2))
 		pygame.display.update()
 
-
-
+	#Update display during game loop
 	def update_display(self, board, legal_moves, selected_piece):
 		self.screen.blit(self.background, (0,0))
 		
@@ -176,11 +185,13 @@ class Graphics:
 		pygame.display.update()
 		self.clock.tick(self.fps)
 
+	#Draw board in game
 	def draw_board_squares(self, board):
 		for x in range(8):
 			for y in range(8):
 				pygame.draw.rect(self.screen, board[x][y].color, (x * self.square_size, y * self.square_size, self.square_size, self.square_size), )
 	
+	#Draw pieces in game
 	def draw_board_pieces(self, board):
 		for x in range(8):
 			for y in range(8):
@@ -190,13 +201,15 @@ class Graphics:
 					if board.location((x,y)).occupant.king == True:
 						pygame.draw.circle(self.screen, GOLD, self.pixel_coords((x,y)), int (self.piece_size / 1.7), self.piece_size >> 2)
 
-
+	#Store coordinates of pieces 
 	def pixel_coords(self, board_coords):
 		return (board_coords[0] * self.square_size + self.piece_size, board_coords[1] * self.square_size + self.piece_size)
 
+	#Store coordinates of board
 	def board_coords(self, pixel):
 		return (pixel[0] // self.square_size, pixel[1] // self.square_size)
 
+	#Show highlights when hovering piece
 	def highlight_squares(self, squares, origin):
 		for square in squares:
 			pygame.draw.rect(self.screen, HIGH, (square[0] * self.square_size, square[1] * self.square_size, self.square_size, self.square_size))	
@@ -204,6 +217,7 @@ class Graphics:
 		if origin != None:
 			pygame.draw.rect(self.screen, HIGH, (origin[0] * self.square_size, origin[1] * self.square_size, self.square_size, self.square_size))
 
+	#Draw message on screen
 	def draw_message(self, message):
 		self.message = True
 		self.font_obj = pygame.font.Font('freesansbold.ttf', 44)
@@ -212,9 +226,11 @@ class Graphics:
 		self.text_rect_obj.center = (self.window_size >> 1, self.window_size >> 1)
 
 class Board:
+	#Initalizes matrix for board
 	def __init__(self):
 		self.matrix = self.new_board()
 
+	#Creates new matrix and sets the board 
 	def new_board(self):
 
 		matrix = [[None] * 8 for i in range(8)]
@@ -252,6 +268,7 @@ class Board:
 
 		return board_string
 	
+		#Checks directionally for avaliable moves
 	def rel(self, dir, pixel):
 		x = pixel[0]
 		y = pixel[1]
@@ -278,6 +295,7 @@ class Board:
 
 		return self.matrix[x][y]
 
+	#All moves function
 	def blind_legal_moves(self, pixel):
 		x = pixel[0]
 		y = pixel[1]
@@ -297,6 +315,7 @@ class Board:
 
 		return blind_legal_moves
 
+	#Legal moves function
 	def legal_moves(self, pixel, hop = False):
 		x = pixel[0]
 		y = pixel[1]
@@ -320,12 +339,14 @@ class Board:
 						legal_moves.append((move[0] + (move[0] - x), move[1] + (move[1] - y)))
 
 		return legal_moves
-
+	
+	#Capture function
 	def remove_piece(self, pixel):
 		x = pixel[0]
 		y = pixel[1]
 		self.matrix[x][y].occupant = None
 
+	#Move function
 	def move_piece(self, pixel_start, pixel_end):
 		start_x = pixel_start[0]
 		start_y = pixel_start[1]
@@ -337,12 +358,14 @@ class Board:
 
 		self.king((end_x, end_y))
 
+	#Checks if piece is at the edge of the board
 	def is_end_square(self, coords):
 		if coords[1] == 0 or coords[1] == 7:
 			return True
 		else:
 			return False
 
+	#Checks if piece is not on edge of the board
 	def on_board(self, pixel):
 		x = pixel[0]
 		y = pixel[1]
@@ -351,7 +374,7 @@ class Board:
 		else:
 			return True
 
-
+	#Converts piece to king
 	def king(self, pixel):
 		x = pixel[0]
 		y = pixel[1]
@@ -360,15 +383,18 @@ class Board:
 				self.location((x,y)).occupant.king = True 
 
 class Piece:
+	#Initalizes attributes for pieces
 	def __init__(self, color, king = False):
 		self.color = color
 		self.king = king
 
 class Square:
+	#Defines attributes for board color
 	def __init__(self, color, occupant = None):
 		self.color = color # color is either BLACK or WHITE
 		self.occupant = occupant # occupant is a Square object
 
+#Main function
 def main():
 	game = Game()
 	game.main()
